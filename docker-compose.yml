@@ -1,0 +1,8 @@
+version: '3'
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT}:${PORT}"  # Expose the port defined in the .env file
+    environment:
+      - PORT=${PORT}  # Pass the environment variable from the .env file
