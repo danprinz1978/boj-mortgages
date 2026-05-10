@@ -10,59 +10,15 @@ import { throwMappedError } from 'src/shared/exception/bank.exception';
 import { GetMortgagesRequestDto } from './dto/get-mortgages.dto';
 import {
   GetMortgagesResponseDto,
-  GetMortgagesResponseMessage,
+  UpstreamResponseMessage,
 } from './types/get-mortgages-response.type';
 import {
   EGetMortgagesErrorCodes,
   GetMortgagesErrorMapping,
 } from './types/error-map/get-mortgages-error.type';
+import { hasAccountsData, normalizeResponseMessages } from './helpers/get-mortgages.helpers';
 
-type UpstreamResponseMessage = {
-  ResponseCode?: number | string;
-  responseCode?: number | string;
-};
 
-function hasAccountsData(responseData: unknown): boolean {
-  if (Array.isArray(responseData)) {
-    return responseData.length > 0 && Boolean(responseData[0]?.AccountEntry);
-  }
-
-  if (!responseData || typeof responseData !== 'object') {
-    return false;
-  }
-
-  const accountBlock = responseData as {
-    loansBlock?: unknown[];
-    accountNumber?: string;
-    branchNumber?: string;
-  };
-
-  return Array.isArray(accountBlock.loansBlock) && accountBlock.loansBlock.length > 0;
-}
-
-function normalizeResponseMessages(
-  message?:
-    | GetMortgagesResponseMessage
-    | GetMortgagesResponseMessage[]
-    | UpstreamResponseMessage
-    | UpstreamResponseMessage[],
-): GetMortgagesResponseMessage[] {
-  if (!message) {
-    return [];
-  }
-
-  const messages = Array.isArray(message) ? message : [message];
-
-  return messages.map((item) => ({
-    ...(item as GetMortgagesResponseMessage),
-    ResponseCode:
-      Number(
-        (item as UpstreamResponseMessage).ResponseCode ??
-          (item as UpstreamResponseMessage).responseCode ??
-          0,
-      ) || 0,
-  }));
-}
 
 @Injectable()
 export class GetMortgagesService {

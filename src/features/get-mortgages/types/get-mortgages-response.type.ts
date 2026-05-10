@@ -123,5 +123,8 @@ export interface GetMortgagesLoansBlock {
   LoanEntry: GetMortgagesLoanEntry[];
 }
 
-
+export type UpstreamResponseMessage = {
+  ResponseCode?: number | string;
+  responseCode?: number | string;
+};
 
