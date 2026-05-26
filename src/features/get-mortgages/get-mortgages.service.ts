@@ -10,15 +10,23 @@ import { throwMappedError } from 'src/shared/exception/bank.exception';
 import { GetMortgagesRequestDto } from './dto/get-mortgages.dto';
 import {
   GetMortgagesResponseDto,
+  GetMortgagesClientResponseDto,
   UpstreamResponseMessage,
 } from './types/get-mortgages-response.type';
 import {
   EGetMortgagesErrorCodes,
   GetMortgagesErrorMapping,
 } from './types/error-map/get-mortgages-error.type';
-import { hasAccountsData, normalizeResponseMessages } from './helpers/get-mortgages.helpers';
-
-
+import {
+  extractMortgagesAccountsBlockPayload,
+  hasAccountsData,
+  normalizeAccountBlockPayload,
+  normalizeResponseMessages,
+} from './helpers/get-mortgages.helpers';
+import { StaticDataService } from './static-data/static-data.service';
+import { buildCurrencySymbolMap } from './utils/get-mortgages-currency.util';
+import { mapGetMortgagesToClientDto } from './mappers/get-mortgages.mapper';
+import { enrichGetMortgagesWithCurrencySymbols } from './utils/get-mortgages-currency.util';
 
 @Injectable()
 export class GetMortgagesService {
@@ -29,7 +37,10 @@ export class GetMortgagesService {
     private readonly httpProxyService: HttpProxyService,
     private readonly secretsManagerService: SecretsManagerService,
     private readonly BOJLogger: LoggerService,
+    private readonly staticDataService: StaticDataService,
   ) {}
+  
+  
 
   async onModuleInit() {
     await this.secretsManagerService.onModuleInit();
@@ -106,9 +117,7 @@ export class GetMortgagesService {
         });
       }
 
-      const responseData =
-        responseDataRaw?.Params?.AccountsBlock ??
-        responseDataRaw?.params?.accountsBlock;
+      const responseData = extractMortgagesAccountsBlockPayload(responseDataRaw);
 
       if (!hasAccountsData(responseData)) {
         throwMappedError({
@@ -121,7 +130,36 @@ export class GetMortgagesService {
         response: response.data,
       });
 
-      return responseData;
+      const [matCurrencies] = await Promise.all([
+        this.staticDataService.getMatCurrencies(),
+      ]);
+      const codeToSymbol = buildCurrencySymbolMap(matCurrencies);
+
+      const header =
+        responseDataRaw.Header ?? responseDataRaw.header;
+      if (!header) {
+        this.BOJLogger.error(
+          'Get mortgages response missing Header',
+          { responseData: response.data },
+        );
+        throwMappedError({
+          errorCode: EGetMortgagesErrorCodes.EMPTY_RESPONSE,
+          errorMapping: GetMortgagesErrorMapping,
+        });
+      }
+
+      const accountBlock = normalizeAccountBlockPayload(responseData);
+
+      const mapped = mapGetMortgagesToClientDto(accountBlock);
+      const enriched = enrichGetMortgagesWithCurrencySymbols(mapped, codeToSymbol);
+
+      return {
+        Header: header as GetMortgagesResponseDto['Header'],
+        Params: {
+          AccountsBlock: [enriched],
+        },
+      } satisfies GetMortgagesClientResponseDto;
+
     } catch (error) {
       this.BOJLogger.error(
         `Error getting mortgages: ${error.message}`,
