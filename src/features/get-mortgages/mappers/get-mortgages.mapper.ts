@@ -33,6 +33,18 @@ function pickStr(row: GetMortgagesLoanEntry, key: string): string {
   return String(v);
 }
 
+/** Upstream sometimes sends "Principle" instead of "Principal". */
+function pickStrWithAliases(
+  row: GetMortgagesLoanEntry,
+  ...keys: string[]
+): string {
+  for (const key of keys) {
+    const v = pickStr(row, key);
+    if (v !== '') return v;
+  }
+  return '';
+}
+
 function pickStrNull(row: GetMortgagesLoanEntry, key: string): string | null {
   const v = pickRaw(row, key);
   if (v === undefined || v === null) return null;
@@ -46,8 +58,8 @@ function mapLoan(p: GetMortgagesLoanEntry): GetMortgagesLoanEntryDto {
     ProductName: pickStr(p, 'ProductName'),
     LoanContractNumber: pickStr(p, 'LoanContractNumber'),
     CurrencyCode: pickStr(p, 'CurrencyCode'),
-    Principal: pickStr(p, 'Principal'),
-    PrincipalNIS: pickStr(p, 'PrincipalNIS'),
+    Principal: pickStrWithAliases(p, 'Principal', 'Principle'),
+    PrincipalNIS: pickStrWithAliases(p, 'PrincipalNIS', 'PrincipleNIS'),
     Balance: pickStr(p, 'Balance'),
     BalanceNIS: pickStr(p, 'BalanceNIS'),
     RegistrationDate: pickStr(p, 'RegistrationDate'),
@@ -138,5 +150,6 @@ export function mapGetMortgagesToClientDto(account: AccountBlock): AccountBlockD
     BranchNumber: pickStrRow(row, 'BranchNumber'),
     AccountNumber: pickStrRow(row, 'AccountNumber'),
     LoansBlock: loansBlock,
+    AccountTotalNextPaymentAmountNIS: pickStrRow(row, 'AccountTotalNextPaymentAmountNIS'),
   };
 }

@@ -71,10 +71,22 @@ function normalizeLoansBlockToFlat(
 }
 
 function coerceAccountBlock(rec: LooseRecord): AccountBlock {
+  const accountTotals =
+    asRecord(rec.AccountTotals) ??
+    asRecord(rec.accountTotals) ??
+    asRecord(rec.account_totals);
+
   return {
     BranchNumber: String(rec.BranchNumber ?? rec.branchNumber ?? ''),
     AccountNumber: String(rec.AccountNumber ?? rec.accountNumber ?? ''),
     LoansBlock: normalizeLoansBlockToFlat(rec.LoansBlock ?? rec.loansBlock),
+    AccountTotalNextPaymentAmountNIS: String(
+      rec.AccountTotalNextPaymentAmountNIS ??
+        rec.accountTotalNextPaymentAmountNIS ??
+        accountTotals?.AccountTotalNextPaymentAmountNIS ??
+        accountTotals?.accountTotalNextPaymentAmountNIS ??
+        '',
+    ),
   };
 }
 
@@ -204,6 +216,7 @@ export function normalizeAccountBlockPayload(raw: unknown): AccountBlock {
     BranchNumber: '',
     AccountNumber: '',
     LoansBlock: null,
+    AccountTotalNextPaymentAmountNIS: '',
   };
 
   const takeFirstEntryFromLegacyWrapper = (

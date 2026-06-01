@@ -124,6 +124,7 @@ export interface AccountBlock {
   BranchNumber: string;
   AccountNumber: string;
   LoansBlock: GetMortgagesLoanEntry[] | null;
+  AccountTotalNextPaymentAmountNIS: string;
 }
 
 export type UpstreamResponseMessage = {
@@ -218,4 +219,5 @@ export interface AccountBlockDto {
   BranchNumber: string;
   AccountNumber: string;
   LoansBlock:  GetMortgagesLoanEntryDto[] | null;
+  AccountTotalNextPaymentAmountNIS: string;
 }
