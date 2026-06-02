@@ -19,6 +19,7 @@ import {
 } from './types/error-map/get-mortgages-error.type';
 import {
   extractMortgageContractCount,
+  extractMortgageContractDetails,
   extractMortgagesAccountsBlockPayload,
   hasAccountsData,
   normalizeAccountBlockPayload,
@@ -154,12 +155,14 @@ export class GetMortgagesService {
       const mapped = mapGetMortgagesToClientDto(accountBlock);
       const enriched = enrichGetMortgagesWithCurrencySymbols(mapped, codeToSymbol);
       const mortgageContractCount = extractMortgageContractCount(responseDataRaw);
+      const mortgageContractDetails = extractMortgageContractDetails(responseDataRaw);
 
       return {
         Header: header as GetMortgagesResponseDto['Header'],
         Params: {
           AccountsBlock: [enriched],
           MortgageContractCount: mortgageContractCount,
+          MortgageContractDetails: mortgageContractDetails,
         },
       } satisfies GetMortgagesClientResponseDto;
 

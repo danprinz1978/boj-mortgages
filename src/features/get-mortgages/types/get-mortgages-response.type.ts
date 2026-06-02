@@ -18,6 +18,12 @@ export interface GetMortgagesResponseDto {
   Params: ParamsBlock;
 }
 
+/** Per-contract track-count detail, passed through from upstream. */
+export interface MortgageContractDetailDto {
+  mortgageContractNumber: string;
+  loanContractCount: string;
+}
+
 /** Full payload returned to API consumers (upstream header + enriched accounts). */
 export interface GetMortgagesClientResponseDto {
   Header: GetMortgagesResponseHeader;
@@ -25,6 +31,8 @@ export interface GetMortgagesClientResponseDto {
     AccountsBlock: AccountBlockDto[];
     /** Bank-authoritative count of mortgage contracts (passed through from upstream). */
     MortgageContractCount?: string | null;
+    /** Per-contract track counts (mortgageContractNumber → loanContractCount). */
+    MortgageContractDetails?: MortgageContractDetailDto[] | null;
   };
 }
 

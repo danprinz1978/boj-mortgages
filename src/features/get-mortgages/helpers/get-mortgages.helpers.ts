@@ -2,6 +2,7 @@ import {
   AccountBlock,
   GetMortgagesLoanEntry,
   GetMortgagesResponseMessage,
+  MortgageContractDetailDto,
   UpstreamResponseMessage,
 } from '../types/get-mortgages-response.type';
 
@@ -182,6 +183,39 @@ export function extractMortgageContractCount(responseDataRaw: unknown): string |
     root.mortgageContractCount;
   if (raw === undefined || raw === null || raw === '') return null;
   return String(raw);
+}
+
+/**
+ * Pull the per-contract track-count details out of the raw upstream payload.
+ * Lives at `Params.MortgageContractDetails`; entry keys arrive lowercase
+ * (`mortgageContractNumber` / `loanContractCount`). Returns a normalized array
+ * or `null` when absent.
+ */
+export function extractMortgageContractDetails(
+  responseDataRaw: unknown,
+): MortgageContractDetailDto[] | null {
+  const root = unwrapGatewayResponse(responseDataRaw) ?? asRecord(responseDataRaw);
+  if (!root) return null;
+  const params = asRecord(root.Params) ?? asRecord(root.params);
+  const arr =
+    params?.MortgageContractDetails ??
+    params?.mortgageContractDetails ??
+    root.MortgageContractDetails ??
+    root.mortgageContractDetails;
+  if (!Array.isArray(arr)) return null;
+  const out: MortgageContractDetailDto[] = [];
+  for (const item of arr) {
+    const r = asRecord(item);
+    if (!r) continue;
+    const num = r.mortgageContractNumber ?? r.MortgageContractNumber;
+    const cnt = r.loanContractCount ?? r.LoanContractCount;
+    if (num === undefined || num === null) continue;
+    out.push({
+      mortgageContractNumber: String(num),
+      loanContractCount: cnt === undefined || cnt === null ? '' : String(cnt),
+    });
+  }
+  return out.length > 0 ? out : null;
 }
 
 function accountEntriesFromBlock(block: LooseRecord): unknown[] {
