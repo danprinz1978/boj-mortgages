@@ -80,8 +80,8 @@ export function enrichGetMortgagesWithCurrencySymbols(
             loan.CurrencyCode,
             symbols,
           ),
-          AmlatHivaWithCurrency: formatAmountOptional(
-            loan.AmlatHiva,
+          AmlatHivonWithCurrency: formatAmountOptional(
+            loan.AmlatHivon,
             loan.CurrencyCode,
             symbols,
           ),

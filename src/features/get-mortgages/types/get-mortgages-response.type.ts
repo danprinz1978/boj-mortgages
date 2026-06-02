@@ -23,6 +23,8 @@ export interface GetMortgagesClientResponseDto {
   Header: GetMortgagesResponseHeader;
   Params: {
     AccountsBlock: AccountBlockDto[];
+    /** Bank-authoritative count of mortgage contracts (passed through from upstream). */
+    MortgageContractCount?: string | null;
   };
 }
 
@@ -89,7 +91,7 @@ SugHatzmada:string | null;
 ShaarBasis:string | null;
 RibitMetoemet:string;
 DateShinuiRibitHaba:string | null;
-AmlatHiva:string | null;
+AmlatHivon:string | null;
 AmlatHodaMerosh:string | null;
 AmlatPizuiMadad:string | null;
 AmlatTeful:string | null;
@@ -106,7 +108,7 @@ SugLoanFlag:string;
 SugLoanCode:string;
 ShaarBasis451:string | null;
 ShiurRibitKoleletHeskem:string | null;
-ShiurRibitCompoareHeskem:string | null;
+ShiurRibitCompareHeskem:string | null;
 YitraHeskem:string | null;
 InterestType:string;
 RateCode:string;
@@ -174,7 +176,7 @@ SugHatzmada:string | null;
 ShaarBasis:string | null;
 RibitMetoemet:string;
 DateShinuiRibitHaba:string | null;
-AmlatHiva:string | null;
+AmlatHivon:string | null;
 AmlatHodaMerosh:string | null;
 AmlatPizuiMadad:string | null;
 AmlatTeful:string | null;
@@ -191,7 +193,7 @@ SugLoanFlag:string;
 SugLoanCode:string;
 ShaarBasis451:string | null;
 ShiurRibitKoleletHeskem:string | null;
-ShiurRibitCompoareHeskem:string | null;
+ShiurRibitCompareHeskem:string | null;
 YitraHeskem:string | null;
 InterestType:string;
 RateCode:string;
@@ -206,7 +208,7 @@ BalanceWithCurrency: string;
 ItratKerenWithCurrency: string;
 ItratRibitWithCurrency: string;
 ItratHazmadaWithCurrency: string;
-AmlatHivaWithCurrency: string;
+AmlatHivonWithCurrency: string;
 AmlatHodaMeroshWithCurrency: string;
 AmlatPizuiMadadWithCurrency: string;
 SumAmlotPeraonMukdamWithCurrency: string;

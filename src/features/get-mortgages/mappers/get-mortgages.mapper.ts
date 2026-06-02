@@ -45,10 +45,12 @@ function pickStrWithAliases(
   return '';
 }
 
-function pickStrNull(row: GetMortgagesLoanEntry, key: string): string | null {
-  const v = pickRaw(row, key);
-  if (v === undefined || v === null) return null;
-  return String(v);
+function pickStrNull(row: GetMortgagesLoanEntry, ...keys: string[]): string | null {
+  for (const key of keys) {
+    const v = pickRaw(row, key);
+    if (v !== undefined && v !== null) return String(v);
+  }
+  return null;
 }
 
 function mapLoan(p: GetMortgagesLoanEntry): GetMortgagesLoanEntryDto {
@@ -99,7 +101,7 @@ function mapLoan(p: GetMortgagesLoanEntry): GetMortgagesLoanEntryDto {
     ShaarBasis: pickStrNull(p, 'ShaarBasis'),
     RibitMetoemet: pickStr(p, 'RibitMetoemet'),
     DateShinuiRibitHaba: pickStrNull(p, 'DateShinuiRibitHaba'),
-    AmlatHiva: pickStrNull(p, 'AmlatHiva'),
+    AmlatHivon: pickStrNull(p, 'AmlatHivon', 'AmlatHiva'),
     AmlatHodaMerosh: pickStrNull(p, 'AmlatHodaMerosh'),
     AmlatPizuiMadad: pickStrNull(p, 'AmlatPizuiMadad'),
     AmlatTeful: pickStrNull(p, 'AmlatTeful'),
@@ -116,7 +118,11 @@ function mapLoan(p: GetMortgagesLoanEntry): GetMortgagesLoanEntryDto {
     SugLoanCode: pickStr(p, 'SugLoanCode'),
     ShaarBasis451: pickStrNull(p, 'ShaarBasis451'),
     ShiurRibitKoleletHeskem: pickStrNull(p, 'ShiurRibitKoleletHeskem'),
-    ShiurRibitCompoareHeskem: pickStrNull(p, 'ShiurRibitCompoareHeskem'),
+    ShiurRibitCompareHeskem: pickStrNull(
+      p,
+      'ShiurRibitCompareHeskem',
+      'ShiurRibitCompoareHeskem',
+    ),
     YitraHeskem: pickStrNull(p, 'YitraHeskem'),
     InterestType: pickStr(p, 'InterestType'),
     RateCode: pickStr(p, 'RateCode'),
@@ -134,7 +140,7 @@ function mapLoan(p: GetMortgagesLoanEntry): GetMortgagesLoanEntryDto {
     ItratKerenWithCurrency: '',
     ItratRibitWithCurrency: '',
     ItratHazmadaWithCurrency: '',
-    AmlatHivaWithCurrency: '',
+    AmlatHivonWithCurrency: '',
     AmlatHodaMeroshWithCurrency: '',
     AmlatPizuiMadadWithCurrency: '',
     SumAmlotPeraonMukdamWithCurrency: ''

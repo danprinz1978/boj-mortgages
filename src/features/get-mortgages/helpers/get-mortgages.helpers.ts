@@ -165,6 +165,25 @@ export function extractMortgagesAccountsBlockPayload(
   return scavengedRoot ?? undefined;
 }
 
+/**
+ * Pull the bank-authoritative mortgage-contract count out of the raw upstream
+ * payload. Lives at `Params.MortgageContractCount` (the upstream uses lowercase
+ * `params`); we tolerate casing variants and a root-level fallback. Returns the
+ * value as a string, or `null` when absent/empty.
+ */
+export function extractMortgageContractCount(responseDataRaw: unknown): string | null {
+  const root = unwrapGatewayResponse(responseDataRaw) ?? asRecord(responseDataRaw);
+  if (!root) return null;
+  const params = asRecord(root.Params) ?? asRecord(root.params);
+  const raw =
+    params?.MortgageContractCount ??
+    params?.mortgageContractCount ??
+    root.MortgageContractCount ??
+    root.mortgageContractCount;
+  if (raw === undefined || raw === null || raw === '') return null;
+  return String(raw);
+}
+
 function accountEntriesFromBlock(block: LooseRecord): unknown[] {
   const ae =
     block.AccountEntry ??
