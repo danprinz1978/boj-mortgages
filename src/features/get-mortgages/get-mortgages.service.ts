@@ -108,16 +108,22 @@ export class GetMortgagesService {
         });
       }
 
+      // A non-zero responseCode is a *logical* bank status, not a transport
+      // failure. Return the upstream envelope with HTTP 200 (and an empty
+      // AccountsBlock) so the client can read Header.responseCode and map it to
+      // the right user-facing state. Throwing here would surface as a 5xx and
+      // hide the bank's actual response code from the client.
       const failedMessage = messages.find((m) => m.ResponseCode !== 0);
       if (failedMessage) {
-        this.BOJLogger.error('Get mortgages response with non-zero response code', {
-          responseData: response.data,
-        });
-        throwMappedError({
-          errorCode: EGetMortgagesErrorCodes.RESPONSE_CODE_ERROR,
-          responseCode: failedMessage.ResponseCode,
-          errorMapping: GetMortgagesErrorMapping,
-        });
+        this.BOJLogger.log(
+          'Get mortgages response with non-zero response code; returning envelope (HTTP 200) for client interpretation',
+          { responseCode: failedMessage.ResponseCode },
+        );
+        const header = responseDataRaw.Header ?? responseDataRaw.header;
+        return {
+          Header: header as GetMortgagesResponseDto['Header'],
+          Params: { AccountsBlock: [] },
+        } satisfies GetMortgagesClientResponseDto;
       }
 
       const responseData = extractMortgagesAccountsBlockPayload(responseDataRaw);
