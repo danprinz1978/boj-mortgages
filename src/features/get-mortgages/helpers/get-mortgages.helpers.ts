@@ -218,6 +218,33 @@ export function extractMortgageContractDetails(
   return out.length > 0 ? out : null;
 }
 
+/**
+ * Pull the bank-authoritative account-level mortgage arrears total out of the
+ * raw upstream payload. The upstream carries it as `allAccountsTotals.bojMortgageArrears`
+ * (and/or `accountTotalArrearsAmountNIS` on the all-accounts/account totals).
+ * Casing-tolerant; returns the value as a string, or `null` when absent/empty.
+ */
+export function extractMortgageArrearsTotal(responseDataRaw: unknown): string | null {
+  const root = unwrapGatewayResponse(responseDataRaw) ?? asRecord(responseDataRaw);
+  if (!root) return null;
+  const params = asRecord(root.Params) ?? asRecord(root.params);
+  const allTotals = asRecord(params?.allAccountsTotals) ?? asRecord(params?.AllAccountsTotals);
+  const accountsBlock = params?.AccountsBlock ?? params?.accountsBlock;
+  const firstAccount = Array.isArray(accountsBlock) ? asRecord(accountsBlock[0]) : undefined;
+  const accountTotals = asRecord(firstAccount?.accountTotals) ?? asRecord(firstAccount?.AccountTotals);
+  const raw =
+    params?.bojMortgageArrears ??
+    params?.BojMortgageArrears ??
+    allTotals?.bojMortgageArrears ??
+    allTotals?.BojMortgageArrears ??
+    allTotals?.accountTotalArrearsAmountNIS ??
+    allTotals?.AccountTotalArrearsAmountNIS ??
+    accountTotals?.accountTotalArrearsAmountNIS ??
+    accountTotals?.AccountTotalArrearsAmountNIS;
+  if (raw === undefined || raw === null || raw === '') return null;
+  return String(raw);
+}
+
 function accountEntriesFromBlock(block: LooseRecord): unknown[] {
   const ae =
     block.AccountEntry ??

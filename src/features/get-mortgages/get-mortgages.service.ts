@@ -18,6 +18,7 @@ import {
   GetMortgagesErrorMapping,
 } from './types/error-map/get-mortgages-error.type';
 import {
+  extractMortgageArrearsTotal,
   extractMortgageContractCount,
   extractMortgageContractDetails,
   extractMortgagesAccountsBlockPayload,
@@ -156,6 +157,7 @@ export class GetMortgagesService {
       const enriched = enrichGetMortgagesWithCurrencySymbols(mapped, codeToSymbol);
       const mortgageContractCount = extractMortgageContractCount(responseDataRaw);
       const mortgageContractDetails = extractMortgageContractDetails(responseDataRaw);
+      const mortgageArrearsTotal = extractMortgageArrearsTotal(responseDataRaw);
 
       return {
         Header: header as GetMortgagesResponseDto['Header'],
@@ -163,6 +165,7 @@ export class GetMortgagesService {
           AccountsBlock: [enriched],
           MortgageContractCount: mortgageContractCount,
           MortgageContractDetails: mortgageContractDetails,
+          MortgageArrearsTotalNIS: mortgageArrearsTotal,
         },
       } satisfies GetMortgagesClientResponseDto;
 

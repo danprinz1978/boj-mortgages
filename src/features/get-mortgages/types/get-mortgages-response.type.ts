@@ -33,6 +33,8 @@ export interface GetMortgagesClientResponseDto {
     MortgageContractCount?: string | null;
     /** Per-contract track counts (mortgageContractNumber → loanContractCount). */
     MortgageContractDetails?: MortgageContractDetailDto[] | null;
+    /** Bank-authoritative account-level arrears total in NIS (passed through from upstream). */
+    MortgageArrearsTotalNIS?: string | null;
   };
 }
 
