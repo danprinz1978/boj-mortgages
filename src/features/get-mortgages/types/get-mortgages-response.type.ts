@@ -222,7 +222,10 @@ AmlatHivonWithCurrency: string;
 AmlatHodaMeroshWithCurrency: string;
 AmlatPizuiMadadWithCurrency: string;
 SumAmlotPeraonMukdamWithCurrency: string;
-      
+PrincipalWithCurrency: string;
+NextPaymentAmountWithCurrency: string;
+LoanArrearsAmountWithCurrency: string;
+
 }
 
 

@@ -143,7 +143,10 @@ function mapLoan(p: GetMortgagesLoanEntry): GetMortgagesLoanEntryDto {
     AmlatHivonWithCurrency: '',
     AmlatHodaMeroshWithCurrency: '',
     AmlatPizuiMadadWithCurrency: '',
-    SumAmlotPeraonMukdamWithCurrency: ''
+    SumAmlotPeraonMukdamWithCurrency: '',
+    PrincipalWithCurrency: '',
+    NextPaymentAmountWithCurrency: '',
+    LoanArrearsAmountWithCurrency: ''
   };
 }
 

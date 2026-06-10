@@ -25,11 +25,24 @@ export function buildCurrencySymbolMap(
   return map;
 }
 
+// Formats "<symbol><grouped amount>" — e.g. "₪420,000.00" — matching the
+// client's number formatting (he-IL grouping + 2 fraction digits) so the
+// consumer can render the string as-is without re-formatting.
 const formatAmount = (
   amount: string,
   currencyCode: string,
   symbols: Map<string, string>,
-) => `${symbols.get(normalizeCode(currencyCode)) ?? currencyCode}${amount}`;
+) => {
+  const symbol = symbols.get(normalizeCode(currencyCode)) ?? currencyCode;
+  const num = Number(amount);
+  const formatted = Number.isFinite(num)
+    ? num.toLocaleString('he-IL', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    : amount;
+  return `${symbol}${formatted}`;
+};
 
 const formatAmountOptional = (
   amount: string | null | undefined,
@@ -38,6 +51,19 @@ const formatAmountOptional = (
 ) => {
   if (amount == null || amount === '') return '';
   return formatAmount(amount, currencyCode, symbols);
+};
+
+// Picks the first non-empty amount (FX-currency field, then NIS fallback) and
+// formats it with the loan's currency symbol. Used for fields whose value lives
+// in either the foreign-currency or the NIS column depending on the loan.
+const formatAmountWithFallback = (
+  primary: string | null | undefined,
+  fallback: string | null | undefined,
+  currencyCode: string,
+  symbols: Map<string, string>,
+) => {
+  const amount = primary != null && primary !== '' ? primary : fallback;
+  return formatAmountOptional(amount, currencyCode, symbols);
 };
 
 export function enrichGetMortgagesWithCurrencySymbols(
@@ -97,6 +123,23 @@ export function enrichGetMortgagesWithCurrencySymbols(
           ),
           SumAmlotPeraonMukdamWithCurrency: formatAmountOptional(
             loan.SumAmlotPeraonMukdam,
+            loan.CurrencyCode,
+            symbols,
+          ),
+          PrincipalWithCurrency: formatAmountWithFallback(
+            loan.Principal,
+            loan.PrincipalNIS,
+            loan.CurrencyCode,
+            symbols,
+          ),
+          NextPaymentAmountWithCurrency: formatAmountWithFallback(
+            loan.NextPaymentAmount,
+            loan.NextPaymentAmountNIS,
+            loan.CurrencyCode,
+            symbols,
+          ),
+          LoanArrearsAmountWithCurrency: formatAmountOptional(
+            loan.LoanArrearsAmount,
             loan.CurrencyCode,
             symbols,
           ),
